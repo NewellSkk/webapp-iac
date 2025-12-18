@@ -1,0 +1,77 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Security Groups for the Web Application"
+
+Parameters:
+  EnvironmentName:
+    Type: String
+  VpcId:
+    Type: String
+
+Resources:
+  # Web Server Security Group
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for web WebServerSecurityGroup
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        # HTTPS access from anywhere
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+        # HTTPS access from anywhere
+        - IpProtocol: tcp
+          FromPort: 433
+          ToPort: 433
+          CidrIp: 0.0.0.0/0
+
+        #  SSH Access - restrict in production!
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-web-sg
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Application Load Balancer
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 433
+          ToPort: 433
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-alb-sg
+  
+  # Allow traffic from ALB to Web Servers
+  ALBToWebServerIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow traffic from ALB to web servers
+      GroupId: !Ref WebServerSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      SourceSecurityGroupId: !Ref ALBSecurityGroup
+
+Outputs:
+  WebServerSecurityGroupId: 
+    Description: Web server security group ID
+    Value: !Ref WebServerSecurityGroup
+  ALBSecurityGroupId:
+    Description: ALB security group ID
+    Value: !Ref ALBSecurityGroup
