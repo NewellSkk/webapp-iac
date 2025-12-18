@@ -1,0 +1,72 @@
+--- 
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Web application infrastructure - Root Stack"
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+
+  VpcCidr:
+    Type: String
+    Default: "10.0.0.0/16"
+  
+  PublicSubnet1Cidr:
+    Type: String
+    Default: "10.0.1.0/24"
+  
+  PublicSubnet1Cidr:
+    Type: String
+    Default: "10.0.2.0/24"
+
+Resources:
+  # 1. Network Stack
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./network.yaml
+      Parameters: 
+        EnvironmentName: !Ref EnvironmentName
+        VpcCidr: !Ref VpcCidr
+        PublicSubnet1Cidr: !Ref PublicSubnet1Cidr
+        PublicSubnet2Cidr: !Ref PublicSubnet2Cidr
+  
+  # 2. Security Stack(Depends on Network Stack)
+  SecurityStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: ./security.yaml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        VpcId: !GetAtt NetworkStack.Outputs.VpcId
+
+  # 3. Compute Stack(Depends on Network and Security)
+  ComputeStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - NetworkStack
+      - SecurityStack
+    Properties:
+      TemplateURL: ./compute.yaml
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        VpcId: !GetAtt NetworkStack.Outputs.VpcId
+        PublicSubnet1Id: !GetAtt NetworkStack.Outputs.PublicSubnet1Id
+        PublicSubnet2Id: !GetAtt NetworkStack.Outputs.PublicSubnet2Id
+        WebServerSecurityGroupId: !GetAtt SecurityStack.Outputs.WebServerSecurityGroupId
+
+Outputs:
+  WebAppURL:
+    Description: URL for the web application
+    Value: !GetAtt ComputeStack.Outputs.WebAppURL
+  VpcId:
+    Description: VPC VpcId
+    Value: !GetAtt NetworkStack.Outputs.VpcId
+  AutoScalingGroupName:
+    Description: Auto Scaling Group Name
+    Value: !GetAtt ComputeStack.Outputs.AutoScalingGroupName
