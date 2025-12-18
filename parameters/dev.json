@@ -1,0 +1,8 @@
+{
+  "Parameters": {
+    "EnvironmentName": "dev",
+    "VpcCidr": "10.0.0.0/16",
+    "PublicSubnet1Cidr": "10.0.1.0/24",
+    "PublicSubnet2Cidr": "10.0.2.0/24"
+  }
+}
