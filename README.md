@@ -24,12 +24,24 @@ aws-webapp-infrastructure/
 
 ---
 ## Deployment
+### Package :
+Packaging the nested templates to S3
 
-### Deploy from root template:
 ```bash
-aws cloudformation create-stack \
-  --stack-name webapp-infrastructure \
-  --template-body file://templates/root.yaml \
-  --parameters file://parameters/dev.json \
-  --capabilities CAPABILITY_NAMED_IAM
+aws cloudformation package \
+  --template-file templates/root.yaml \
+  --s3-bucket 'S3_BUCKET' \
+  --output-template-file packaged-root.yaml
 ```
+### Deploy :
+Deploy the stack from packaged template
+
+```bash
+aws cloudformation deploy \
+  --template-file packaged-root.yaml \
+  --stack-name webapp-infrastructure \
+  --parameter-overrides file://parameters/dev.json \
+  --capabilities CAPABILITY_NAMED_IAM
+
+```
+`

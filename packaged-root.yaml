@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Web application infrastructure - Root Stack
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: dev
+    AllowedValues:
+    - dev
+    - staging
+    - prod
+  VpcCidr:
+    Type: String
+    Default: 10.0.0.0/16
+  PublicSubnet1Cidr:
+    Type: String
+    Default: 10.0.1.0/24
+  PublicSubnet2Cidr:
+    Type: String
+    Default: 10.0.2.0/24
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.us-east-1.amazonaws.com/webapp1738-cfn-templates/c8fe183581571387841a83d6a3e082f5.template
+      Parameters:
+        EnvironmentName:
+          Ref: EnvironmentName
+        VpcCidr:
+          Ref: VpcCidr
+        PublicSubnet1Cidr:
+          Ref: PublicSubnet1Cidr
+        PublicSubnet2Cidr:
+          Ref: PublicSubnet2Cidr
+  SecurityStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: https://s3.us-east-1.amazonaws.com/webapp1738-cfn-templates/c8fa3fa1a2b96060d67ef2bd94707bbb.template
+      Parameters:
+        EnvironmentName:
+          Ref: EnvironmentName
+        VpcId:
+          Fn::GetAtt:
+          - NetworkStack
+          - Outputs.VpcId
+  ComputeStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - NetworkStack
+    - SecurityStack
+    Properties:
+      TemplateURL: https://s3.us-east-1.amazonaws.com/webapp1738-cfn-templates/fd8815c3d68a013e517fe7897afd696e.template
+      Parameters:
+        EnvironmentName:
+          Ref: EnvironmentName
+        VpcId:
+          Fn::GetAtt:
+          - NetworkStack
+          - Outputs.VpcId
+        PublicSubnet1Id:
+          Fn::GetAtt:
+          - NetworkStack
+          - Outputs.PublicSubnet1Id
+        PublicSubnet2Id:
+          Fn::GetAtt:
+          - NetworkStack
+          - Outputs.PublicSubnet2Id
+        WebServerSecurityGroupId:
+          Fn::GetAtt:
+          - SecurityStack
+          - Outputs.WebServerSecurityGroupId
+Outputs:
+  WebAppURL:
+    Description: URL for the web application
+    Value:
+      Fn::GetAtt:
+      - ComputeStack
+      - Outputs.WebAppURL
+  VpcId:
+    Description: VPC VpcId
+    Value:
+      Fn::GetAtt:
+      - NetworkStack
+      - Outputs.VpcId
+  AutoScalingGroupName:
+    Description: Auto Scaling Group Name
+    Value:
+      Fn::GetAtt:
+      - ComputeStack
+      - Outputs.AutoScalingGroupName
