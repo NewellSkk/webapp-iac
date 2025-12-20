@@ -39,7 +39,7 @@ Deploy the stack from packaged template
 ```bash
 aws cloudformation deploy \
   --template-file packaged-root.yaml \
-  --stack-name webapp-infrastructure \
+  --stack-name 'STACK-NAME' \
   --parameter-overrides file://parameters/dev.json \
   --capabilities CAPABILITY_NAMED_IAM
 
