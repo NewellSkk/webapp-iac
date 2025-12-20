@@ -22,7 +22,7 @@ Resources:
       EnableDnsSupport: true
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName}-VpcCidr
+          Value: !Sub ${EnvironmentName}-vpc
         - Key: Environment
           Value: !Ref EnvironmentName
 
@@ -47,7 +47,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       Tags:
-        - key: Name
+        - Key: Name
           Value: !Sub ${EnvironmentName}-public-rt
   
   # Public Route to Internet Gateway
@@ -86,7 +86,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: !Ref PublicSubnet2Cidr
-      AvailabilityZone: !Select [0, !GetAZs ""]
+      AvailabilityZone: !Select [1, !GetAZs ""]
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
@@ -95,7 +95,7 @@ Resources:
           Value: !Ref EnvironmentName
 
   # Associate Public Subnet 2 with Public Route Table
-  PublicSubnet1RouteTableAssociation:
+  PublicSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet2
