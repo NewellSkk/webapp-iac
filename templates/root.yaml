@@ -19,7 +19,7 @@ Parameters:
     Type: String
     Default: "10.0.1.0/24"
   
-  PublicSubnet1Cidr:
+  PublicSubnet2Cidr:
     Type: String
     Default: "10.0.2.0/24"
 

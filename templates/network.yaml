@@ -52,7 +52,7 @@ Resources:
   
   # Public Route to Internet Gateway
   PublicRoute:
-    Type:: AWS::EC2::Route
+    Type: AWS::EC2::Route
     DependsOn: VPCGatewayAttachment
     Properties:
       RouteTableId: !Ref PublicRouteTable

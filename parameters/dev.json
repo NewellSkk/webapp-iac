@@ -1,8 +1,18 @@
-{
-  "Parameters": {
-    "EnvironmentName": "dev",
-    "VpcCidr": "10.0.0.0/16",
-    "PublicSubnet1Cidr": "10.0.1.0/24",
-    "PublicSubnet2Cidr": "10.0.2.0/24"
+[
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "dev"
+  },
+  {
+    "ParameterKey": "VpcCidr",
+    "ParameterValue": "10.0.0.0/16"
+  },
+  {
+    "ParameterKey": "PublicSubnet1Cidr",
+    "ParameterValue": "10.0.1.0/24"
+  },
+  {
+    "ParameterKey": "PublicSubnet2Cidr",
+    "ParameterValue": "10.0.2.0/24"
   }
-}
+]
